@@ -1,12 +1,12 @@
-
-import React from 'react'
-import{Grid
-  , Container, Paper, Avatar, Typography,TextField,Button} from '@material-ui/core'
+import React,{useState} from 'react'
+import{Grid, Container, Paper, Avatar, Typography,TextField,Button} from '@material-ui/core'
 import {makeStyles} from '@material-ui/core/styles'
 import fondo from './assets/images/fondo.png'
 import { LockOutlined as LockOutlinedIcon } from '@mui/icons-material'
-import { useState } from 'react'
-const useStyles=makeStyles(theme=>({
+import Swal from 'sweetalert2';
+import axios from 'axios'
+
+  const useStyles=makeStyles(theme=>({
   root:{
        backgroundImage: `url(${fondo})`,
        backgroundRepeat: 'no-repeat',
@@ -45,6 +45,41 @@ const useStyles=makeStyles(theme=>({
 }))
 
 const App = () => {
+  
+const [username, setNickname] = useState('')
+const [password, setPassword] = useState('')
+
+const handleSingIn = async () => {
+  const url = 'http://localhost:4000/login'
+  const body = {
+    username,
+    password
+  }
+  try{
+    const res = await axios.post(url, body)
+    console.log(res)
+    if(res.data.status === 500 || res.data.status === 401){
+      Swal.fire({
+        icon: 'error',
+        title: 'Login incorrecto',
+        text: res.data.message
+      })
+    }else{
+      Swal.fire({
+        icon: 'success',
+        title: 'Login correcto',
+        text: res.data.message
+      })
+    }
+  }catch(error){
+    console.log(error)
+    Swal.fire({
+      icon: 'error',
+      title: 'Login incorrecto',
+      text: 'Contraseña incorrecta'
+    })
+  }
+}
   const classes= useStyles()
   return (
    <Grid container component ='main'className={classes.root}>
@@ -61,8 +96,10 @@ const App = () => {
          color='primary'
          margin='normal'
          variant='outlined'
-         label='Nickname'
-         name="nickname">
+         label='Username'
+         name="nickname"
+         onChange={(e) => setNickname(e.target.value)}
+         >
         
          </TextField>
          <TextField 
@@ -72,6 +109,7 @@ const App = () => {
          margin='normal'
          variant='outlined'
          label='pasword'
+         onChange={(e) => setPassword(e.target.value)}
          >
         
          </TextField>
@@ -80,6 +118,7 @@ const App = () => {
         variant='contained'
         color='secondary'
         className={classes.button}
+        onClick={handleSingIn}
          >
           sing in
          </Button>
